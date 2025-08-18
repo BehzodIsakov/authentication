@@ -43,22 +43,24 @@ const initialUserData: Form = {
 };
 
 export function Register() {
-  const [user, setUser] = useState<Form>(initialUserData);
-  console.log({ user });
+  const [form, setForm] = useState<Form>(initialUserData);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    const isFormValid = Object.values(form).every((v) => v.isValid);
+    if (!isFormValid) return;
   }
 
   function validateField(name: keyof Form, value: string, required: boolean) {
-    if (required && !value.trim()) return "Input field is empty";
+    if (required && !value.trim()) return "Input field is empty!";
 
     if (name === "email") {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) return "Invalid email format!";
     }
 
-    if (name === "confirmPassword" && value !== user.password.value) {
+    if (name === "confirmPassword" && value !== form.password.value) {
       return "Passwords do not match!";
     }
   }
@@ -69,7 +71,7 @@ export function Register() {
     required: boolean,
     touched: boolean = false
   ) {
-    setUser((prev) => {
+    setForm((prev) => {
       const errorMsg = validateField(name, value, required);
       return {
         ...prev,
@@ -106,9 +108,9 @@ export function Register() {
             name='name'
             id='name'
             label='Name'
-            value={user.name.value}
             required
-            errorMsg={user.name.errorMsg}
+            value={form.name.value}
+            errorMsg={form.name.errorMsg}
             onChange={handleInputChange}
             onBlur={handleBlur}
           />
@@ -117,9 +119,9 @@ export function Register() {
             id='email'
             label='Email'
             type='email'
-            value={user.email.value}
             required
-            errorMsg={user.email.errorMsg}
+            value={form.email.value}
+            errorMsg={form.email.errorMsg}
             onChange={handleInputChange}
             onBlur={handleBlur}
           />
@@ -128,9 +130,9 @@ export function Register() {
             id='password'
             label='Password'
             type='password'
-            value={user.password.value}
             required
-            errorMsg={user.password.errorMsg}
+            value={form.password.value}
+            errorMsg={form.password.errorMsg}
             onChange={handleInputChange}
             onBlur={handleBlur}
           />
@@ -139,9 +141,9 @@ export function Register() {
             id='confirmPassword'
             label='Confirm password'
             type='password'
-            value={user.confirmPassword.value}
             required
-            errorMsg={user.confirmPassword.errorMsg}
+            value={form.confirmPassword.value}
+            errorMsg={form.confirmPassword.errorMsg}
             onChange={handleInputChange}
             onBlur={handleBlur}
           />
