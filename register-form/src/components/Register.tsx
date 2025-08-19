@@ -15,7 +15,7 @@ interface Form {
   confirmPassword: FormField;
 }
 
-const initialUserData: Form = {
+const emptyFormData: Form = {
   name: {
     value: "",
     errorMsg: "",
@@ -42,8 +42,13 @@ const initialUserData: Form = {
   },
 };
 
+const PWD_REGEX = /^[A-Za-z0-9_\-#$@&!]{4,23}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export function Register() {
-  const [form, setForm] = useState<Form>(initialUserData);
+  const [form, setForm] = useState<Form>(emptyFormData);
+
+  console.log(form.password);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -52,12 +57,20 @@ export function Register() {
     if (!isFormValid) return;
   }
 
-  function validateField(name: keyof Form, value: string, required: boolean) {
+  function validateField(
+    name: keyof Form,
+    value: string,
+    required: boolean,
+    touched: boolean
+  ) {
     if (required && !value.trim()) return "Input field is empty!";
 
-    if (name === "email") {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) return "Invalid email format!";
+    if (name === "email" && !EMAIL_REGEX.test(value)) {
+      return "Invalid email format!";
+    }
+
+    if (name === "password" && touched && !PWD_REGEX.test(value)) {
+      return `Must be 4 to 24 characters long. Only letters, numbers, underscores (_), hyphens (-), and # $ @ & ! are allowed.`;
     }
 
     if (name === "confirmPassword" && value !== form.password.value) {
@@ -69,17 +82,22 @@ export function Register() {
     name: keyof Form,
     value: string,
     required: boolean,
-    touched: boolean = false
+    touched?: boolean
   ) {
     setForm((prev) => {
-      const errorMsg = validateField(name, value, required);
+      const errorMsg = validateField(
+        name,
+        value,
+        required,
+        touched ?? prev[name].isTouched
+      );
       return {
         ...prev,
         [name]: {
           ...prev[name],
           value,
           isValid: !errorMsg,
-          isTouched: touched || prev[name].isTouched,
+          isTouched: touched ?? prev[name].isTouched,
           errorMsg,
         },
       };
@@ -113,6 +131,8 @@ export function Register() {
             errorMsg={form.name.errorMsg}
             onChange={handleInputChange}
             onBlur={handleBlur}
+            isTouched={form.name.isTouched}
+            isValid={form.name.isValid}
           />
           <FormInput
             name='email'
@@ -124,6 +144,8 @@ export function Register() {
             errorMsg={form.email.errorMsg}
             onChange={handleInputChange}
             onBlur={handleBlur}
+            isTouched={form.email.isTouched}
+            isValid={form.email.isValid}
           />
           <FormInput
             name='password'
@@ -135,6 +157,8 @@ export function Register() {
             errorMsg={form.password.errorMsg}
             onChange={handleInputChange}
             onBlur={handleBlur}
+            isTouched={form.password.isTouched}
+            isValid={form.password.isValid}
           />
           <FormInput
             name='confirmPassword'
@@ -146,6 +170,8 @@ export function Register() {
             errorMsg={form.confirmPassword.errorMsg}
             onChange={handleInputChange}
             onBlur={handleBlur}
+            isTouched={form.confirmPassword.isTouched}
+            isValid={form.confirmPassword.isValid}
           />
           <button className='btn btn-primary block w-full' type='submit'>
             Sign Up
