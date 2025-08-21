@@ -47,8 +47,9 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function Register() {
   const [form, setForm] = useState<Form>(emptyFormData);
-
   console.log(form.password);
+
+  const isFormValid = Object.values(form).every((v) => !v.errorMsg);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -65,7 +66,7 @@ export function Register() {
   ) {
     if (required && !value.trim()) return "Input field is empty!";
 
-    if (name === "email" && !EMAIL_REGEX.test(value)) {
+    if (name === "email" && touched && !EMAIL_REGEX.test(value)) {
       return "Invalid email format!";
     }
 
@@ -73,7 +74,7 @@ export function Register() {
       return `Must be 4 to 24 characters long. Only letters, numbers, underscores (_), hyphens (-), and # $ @ & ! are allowed.`;
     }
 
-    if (name === "confirmPassword" && value !== form.password.value) {
+    if (name === "confirmPassword" && touched && value !== form.password.value) {
       return "Passwords do not match!";
     }
   }
@@ -173,7 +174,11 @@ export function Register() {
             isTouched={form.confirmPassword.isTouched}
             isValid={form.confirmPassword.isValid}
           />
-          <button className='btn btn-primary block w-full' type='submit'>
+          <button
+            className='btn btn-primary block w-full'
+            type='submit'
+            disabled={!isFormValid}
+          >
             Sign Up
           </button>
         </form>
